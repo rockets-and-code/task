@@ -1,0 +1,13 @@
+{
+  "tariff_id": "meridian-flex-tou",
+  "supplier": "Meridian Energy",
+  "name": "Meridian Flex TOU",
+  "contract_months": 24,
+  "standing_charge_p_per_day": "300.000",
+  "band_scheme": "duos",
+  "unit_rates_p_per_kwh": {
+    "green": "19.450",
+    "amber": "26.780",
+    "red": "41.200"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "tariff_id": "caledon-economy-7",
+  "supplier": "Caledon Energy",
+  "name": "Caledon Economy 7",
+  "contract_months": 12,
+  "standing_charge_p_per_day": "198.500",
+  "band_scheme": "day_night",
+  "night_window": {
+    "start": "00:00",
+    "end": "07:00"
+  },
+  "unit_rates_p_per_kwh": {
+    "night": "14.820",
+    "day": "27.640"
+  }
+}

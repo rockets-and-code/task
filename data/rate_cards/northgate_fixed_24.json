@@ -1,0 +1,11 @@
+{
+  "tariff_id": "northgate-fixed-24",
+  "supplier": "Northgate Power",
+  "name": "Northgate Fixed 24",
+  "contract_months": 24,
+  "standing_charge_p_per_day": "225.000",
+  "band_scheme": "flat",
+  "unit_rates_p_per_kwh": {
+    "standard": "24.150"
+  }
+}
