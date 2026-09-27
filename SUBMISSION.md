@@ -34,6 +34,8 @@ estimated readings — and what you would do differently with real customer data
 - DST transition dates do not always have 48 settlement periods. In this data set, some days have 46 or 50 periods due to clock changes.
 - We do not assume a fixed 48-slot day. Instead, we price using the actual `settlement_period` values in the CSV and resolve out-of-range or missing periods to the nearest defined DUoS band rather than silently defaulting to `green`.
 - This is a deliberate trade-off: it preserves a usable price for transition dates without introducing false zeros or heavy-handed data dropping. With real customer data, we would inspect the underlying meter history and confirm whether a missing or duplicated period was a genuine DST artefact or an actual data-quality issue.
+- The current implementation intentionally behaves as a warning-and-continue path for anomalous days: it prints validation warnings and still prices the site if the consumption is still usable. This is a designed compromise for Part A.
+- A fuller production-grade implementation would add a separate `reject/flag` result path for genuinely unpriceable data (for example: grossly corrupted rows, missing date/period pairs, non-numeric `kwh`, or a site with too many invalid periods to price defensibly). That stricter rejection layer is still a missing Part A implementation step.
 
 ## What I cut
 

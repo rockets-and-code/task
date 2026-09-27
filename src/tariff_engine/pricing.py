@@ -8,6 +8,7 @@ with the rounding policy defined in SUBMISSION.md.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
@@ -222,6 +223,34 @@ def build_tariff_strategy(rate_card: dict[str, Any], duos_calendar: dict[str, An
     raise ValueError(f"Unsupported band scheme: {scheme!r}")
 
 
+def validate_readings(readings: Iterable[ConsumptionRecord]) -> list[str]:
+    """Flag anomalous settlement-day shapes while still allowing pricing to continue.
+
+    The requirement allows us to reject or flag data we cannot price, while the
+    actual DUoS logic still resolves DST transition days using the nearest valid
+    period instead of silently defaulting to green.
+    """
+    by_date: dict[str, list[ConsumptionRecord]] = defaultdict(list)
+    for record in readings:
+        by_date[record.date].append(record)
+
+    warnings: list[str] = []
+    for day, day_rows in sorted(by_date.items()):
+        periods = sorted({row.period for row in day_rows})
+        if len(day_rows) != len(periods):
+            warnings.append(f"{day}: duplicate settlement periods found; using the latest occurrence per period")
+        if len(periods) not in {46, 48, 50}:
+            warnings.append(
+                f"{day}: {len(periods)} settlement periods found; expected 46, 48 or 50; pricing continues using actual data"
+            )
+
+        missing = sorted(set(range(1, 51)) - set(periods))
+        if missing:
+            warnings.append(f"{day}: missing settlement periods {missing[:10]} (showing first 10)")
+
+    return warnings
+
+
 def price_site(
     readings: Iterable[ConsumptionRecord],
     rate_card: dict[str, Any],
@@ -234,3 +263,14 @@ def price_site(
     """
     strategy = build_tariff_strategy(rate_card, duos_calendar)
     return strategy.calculate(readings)
+
+
+def price_all_tariffs(
+    readings: Iterable[ConsumptionRecord],
+    rate_cards: list[dict[str, Any]],
+    duos_calendar: dict[str, Any],
+) -> tuple[list[CalculationResult], list[str]]:
+    readings = list(readings)
+    warnings = validate_readings(readings)
+    results = [price_site(readings, card, duos_calendar) for card in rate_cards]
+    return sorted(results, key=lambda result: result.total_p), warnings
