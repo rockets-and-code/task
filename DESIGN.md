@@ -80,7 +80,7 @@ A failed site is not dropped silently: it is returned with a `status: failed` an
 
 ```mermaid
 flowchart LR
-    Client[Client / UI] --> API[API Gateway + ALB]
+    Client[Client / UI] --> API[API Gateway + LB]
     API --> FastAPI[FastAPI app on ECS/Fargate]
     FastAPI --> Redis[(Redis / job metadata)]
     FastAPI --> SQS[(SQS queue)]
@@ -96,6 +96,7 @@ Why these services:
 - FastAPI on ECS/Fargate: matches our existing stack and keeps the API lightweight.
 - SQS: decouples API submission from expensive compute and gives retry / buffering / backpressure.
 - ECS/Fargate workers: run the compute in stateless containers and autoscale based on queue depth.
+    eg. set a max number of workers and scale up to that max when request received. Otherwise spin down to incur no compute cost
 - RDS Postgres: stores job metadata, site-level outcomes, and final results.
 - S3: cheap, durable storage for source consumption files and job artefacts.
 - Redis: optional but useful for short-lived job status and polling cache.
