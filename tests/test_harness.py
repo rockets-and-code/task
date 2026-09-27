@@ -3,16 +3,16 @@
 They assert nothing about pricing -- that is your job.
 """
 
+from decimal import Decimal
+
 
 def test_consumption_loads(consumption_rows):
     assert len(consumption_rows) > 17_000
-    assert set(consumption_rows[0]) == {
-        "mpan",
-        "settlement_date",
-        "settlement_period",
-        "kwh",
-        "reading_type",
-    }
+    first = consumption_rows[0]
+    assert first.date
+    assert isinstance(first.period, int)
+    assert isinstance(first.kwh, Decimal)
+    assert first.kwh == Decimal(str(first.kwh))
 
 
 def test_every_rate_card_has_a_band_scheme(rate_cards):

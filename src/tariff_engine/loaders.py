@@ -11,16 +11,35 @@ from __future__ import annotations
 
 import csv
 import json
+from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Iterator
 
 from . import DATA_DIR
 
 
-def read_consumption_rows(path: Path | None = None) -> Iterator[dict[str, str]]:
+# immutable data model to represent a single half-hourly consumption reading.
+# These values are validated on read so downstream pricing code can work with
+# typed Decimal values instead of raw strings.
+@dataclass(frozen=True)
+class ConsumptionRecord:
+    date: str
+    period: int
+    kwh: Decimal
+
+
+def read_consumption_rows(path: Path | None = None) -> Iterator[ConsumptionRecord]:
     path = path or DATA_DIR / "site_consumption.csv"
     with path.open(newline="") as fh:
-        yield from csv.DictReader(fh)
+        for row in csv.DictReader(fh):
+            kwh_dec = Decimal(str(row["kwh"]))
+            # Instead of returning one complete list at once, it produces values one at a time as the caller asks for them. "yield" better for streaming large data files
+            yield ConsumptionRecord(
+                date=row["settlement_date"],
+                period=int(row["settlement_period"]),
+                kwh=kwh_dec,
+            )
 
 
 def load_rate_cards(directory: Path | None = None) -> list[dict[str, Any]]:
