@@ -1,0 +1,114 @@
+what have I already been given in this starter repo so i don't waste time on it
+
+---
+
+What does this line mean?
+"
+1. **Money is exact.** Use `Decimal`, and state your rounding policy — per
+   period, per band, per invoice — in `SUBMISSION.md`."
+
+What exactly is Decimal, is it an inbuilt python package?
+
+---
+
+what is a standard price for annual consumption for the UK? Give me a formula
+
+---
+
+amend the loaders.py to apply immediate string to Decimal conversion
+
+kwh_dec = Decimal(str(row["kwh"]))
+
+And take into account the new ci=onsumptionrecord class
+
+---
+
+what does yield do
+
+---
+
+let's scaffold the pricing engine pricing.py
+
+We need a base class for BaseTariffStrategy, and from that extend it to one strategy per rate
+
+We need to take into account our rounding and precision strategy documented in the SUBMISSION.md under "Rounding and money"
+
+Also we need to include a CalculationResult dataclass 
+
+and a function that converts exact pence Decimal to Pounds (/ 100) and quantizes to 2 decimal places using ROUND_HALF_UP for when we return the individual invoice components
+
+---
+
+does this code convert the stading charge property to a decimal without storing the OG form in memory and make it readonly?
+
+@property
+    def standing_charge_gbp(self) -> Decimal:
+        return exact_pence_to_pounds(self.standing_charge_p)
+
+---
+
+explain how you calculated the annual cost for each rate card
+
+---
+
+what is a band
+
+---
+
+we need to take into account that due to daylight savings not all calendar days have 48 periods
+
+---
+
+add code comments to document the changes to take into account DST
+
+---
+
+but aren't we setting the end and start times so how are we ensuring this is catching the real edge cases where days don't have 48 periods?
+
+---
+
+let's document this tradeoff into our submission doc
+
+# If a date has extra or missing settlement periods due to DST, the band
+        # lookup should resolve to the nearest valid period rather than silently
+        # defaulting to green. This keeps the pricing consistent on transition days.
+
+---
+
+are the tests still covering the pricing code ok?
+
+---
+
+yes let's make sure we test the price calculations and the rounding behaviour
+
+---
+
+what have we not covered yet from the Part A - Pricing engine requirements ?
+
+---
+
+yes - let's wire the CLI up and finish part A requirements
+
+---
+
+Are we meeting requirement 5 by generating warnings but not rejecting data?
+
+How are we handling requirements 3 and 5?
+
+---
+
+Ok - let's document this decision in submission
+
+We want to expolicitly state that there is a missing implementation for Part A where we would reject unpriceable data and return a flagged error
+
+---
+
+prettify my system design diagram
+
+---
+
+how can I preview the mermaid chart
+
+---
+
+Can you pull out all the prompts I gave you in this session into a text file?
